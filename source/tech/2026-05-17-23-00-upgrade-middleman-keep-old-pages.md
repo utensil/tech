@@ -1,9 +1,9 @@
 ---
-title: 平滑迁移博客到新版本Middleman
+title: 平滑迁移博客到新版本 Middleman
 tags: web, ruby, middleman, AI
 ---
 
-我想升级用来生成博客的Middleman，已经很久了。
+我想升级用来生成博客的 Middleman，已经很久了。
 
 这个博客系列历史悠久。技术博客、文字博客、英文博客，Markdown、Haml、SCSS、middleman-blog、代码高亮、公式、日历、tags、中文路径和中文锚点，都在这里运行了许多年。它一直能生成，一直能发布，于是也一直可以暂时不动。
 
@@ -160,7 +160,7 @@ var tagsJsonPath = tagCloud.data('tags-json') || ['tags', 'json'].join('.');
 
 ## 第一次跑出来的结果并不可靠
 
-一开始我其实只是想先讨论计划：先 survey 当前 repository，再把升级 Ruby、Middleman 和所有 Ruby 依赖这件事整理成一个可验证的任务，最后再转成 `/goal`。我没有预期它马上就创建 `/goal`，也没有预期 `/goal` 会带着隐含的时间和 token 约束。第一次运行中，事情卡在了时间和token预算上。
+一开始我其实只是想先讨论计划：先 survey 当前 repository，再把升级 Ruby、Middleman 和所有 Ruby 依赖这件事整理成一个可验证的任务，最后再转成 `/goal`。我没有预期它马上就创建 `/goal`，也没有预期 `/goal` 会带着隐含的时间和 token 约束。第一次运行中，事情卡在了时间和 token 预算上。
 
 后来把预算放开之后，Codex 确实推进了升级：Ruby 升上去了，Middleman 升上去了，依赖重新锁定，GitHub Actions 也跟着调整。但第一次看似完整的结果并不可靠。writings 页面渲染成了转义后的垃圾，部分 tech 链接表现得像下载，tags 的问题也还没有被覆盖到。
 
