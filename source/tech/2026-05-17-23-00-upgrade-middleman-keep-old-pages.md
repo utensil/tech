@@ -1,13 +1,13 @@
 ---
-title: 把 Middleman 升上去，把旧页面留下来
+title: 平滑迁移博客到新版本Middleman
 tags: web, ruby, middleman, AI
 ---
 
-这个博客的 Middleman 升级，我想做已经很久了。
+我想升级用来生成博客的Middleman，已经很久了。
 
-它不是一个很新的站点。技术博客、文字博客、英文博客，Markdown、Haml、SCSS、middleman-blog、代码高亮、公式、日历、tags、中文路径和中文锚点，都在这里运行了许多年。它一直能生成，一直能发布，于是也一直可以暂时不动。
+这个博客系列历史悠久。技术博客、文字博客、英文博客，Markdown、Haml、SCSS、middleman-blog、代码高亮、公式、日历、tags、中文路径和中文锚点，都在这里运行了许多年。它一直能生成，一直能发布，于是也一直可以暂时不动。
 
-但这种稳定并不可靠。Ruby、Middleman、Haml、Sass 和一堆 gem 被固定在旧时间里，越久越像一块不能碰的积木。之前我也试过几次升级，每次都很快碰到依赖问题：这个版本能装，那个版本不兼容；这个 gem 还能跑，另一个 gem 已经不适合新的 Ruby；某个报错看起来可以绕过去，但绕过去以后，又不知道页面是不是仍然以原来的方式生成。
+但这种稳定并不可靠。Ruby、Middleman、Haml、Sass 和一堆 gem 都被固定在历史版本上，越久越像一块不能碰的积木。之前我也试过几次升级，每次都很快碰到依赖问题：这个版本能装，那个版本不兼容；这个 gem 还能跑，另一个 gem 已经不适合新的 Ruby；某个报错看起来可以绕过去，但绕过去以后，又不知道页面是不是仍然以原来的方式生成。
 
 真正让我迟迟没有继续做下去的，不是某一个报错，而是不确定这些旧页面能不能整体活下来。尤其是 Haml 参与了许多 layout 和页面组织，Markdown 里也混入过 HTML，middleman-blog 又负责把文件名、日期、tag 和 URL 接在一起。只要其中一层的语义变了，页面也许仍然能生成，但生成出来的已经不是原来的博客。
 
@@ -23,17 +23,15 @@ tags: web, ruby, middleman, AI
 
 ## 要升级的是依赖，要保住的是页面
 
-这次升级一开始就应该明确：目标不是把 `Gemfile` 里的版本号改新，而是让旧页面在新的依赖下保持原来的行为。
+这次升级的目标很明确：让旧页面在新的依赖下保持原来的行为。
 
-这里的“页面”不是抽象地说文字还在。它包括原来的 URL、浏览器看到的 `text/html; charset=utf-8`、可读的中文正文、没有被转义出来的 HTML 标签，以及索引、日历、tags 这些入口仍然通向原来的内容。
+这就包括原来的 URL、浏览器看到的 `text/html; charset=utf-8`、可读的中文正文、没有被转义出来的 HTML 标签，以及索引、日历、tags 这些入口仍然通向原来的内容。
 
 内部实现可以改，依赖组合可以改，配置写法也可以改。但公开路径、正文渲染、页面结构和浏览器行为，不应该因为升级而悄悄换掉。
 
-换句话说，这次升级真正要做的，是把旧站点的生成结果迁移到新的 Middleman 生态里，而不是把旧站点改造成另一个新站点。
-
 ## 几个真正改变行为的地方
 
-这次遇到的麻烦里，有些只是普通的依赖协调，有些则真正改变了旧站点的行为。下面这些点不只是“新版本写法不同”，而是如果不处理，旧页面会以另一种方式被生成出来。
+这次遇到的麻烦里，有些只是普通的依赖协调，有些则真正改变了旧站点的行为，每个都需要警觉地发现，并针对性处理。
 
 ### Haml 输出不再能含混
 
@@ -156,17 +154,19 @@ var tagsJsonPath = tagCloud.data('tags-json') || ['tags', 'json'].join('.');
 
 这样 `/tech/tags.html`、`/writings/tags.html`、`/blogs/tags.html` 各自请求自己的 JSON，tag cloud 才会画出对应 section 的内容，不再依赖浏览器怎样解释当前相对路径。
 
-## 把升级交给 /goal
+## 把升级交给 `/goal`
 
 这次我尝试让 Codex 通过 `/goal` 来做这件事。
 
-一开始我其实只是想先讨论计划：先 survey 当前 repository，再把升级 Ruby、Middleman 和所有 Ruby 依赖这件事整理成一个可验证的任务，最后再转成 `/goal`。我没有预期它马上就创建 `/goal`，也没有预期 `/goal` 会带着隐含的时间和 token 约束。第一次运行中，事情卡在了预算和延续性上。这件事本身值得记下来：当任务交给 agent 时，目标不只是“要做什么”，还包括“做完之前允许它怎样持续工作”。
+## 第一次跑出来的结果并不可靠
+
+一开始我其实只是想先讨论计划：先 survey 当前 repository，再把升级 Ruby、Middleman 和所有 Ruby 依赖这件事整理成一个可验证的任务，最后再转成 `/goal`。我没有预期它马上就创建 `/goal`，也没有预期 `/goal` 会带着隐含的时间和 token 约束。第一次运行中，事情卡在了时间和token预算上。
 
 后来把预算放开之后，Codex 确实推进了升级：Ruby 升上去了，Middleman 升上去了，依赖重新锁定，GitHub Actions 也跟着调整。但第一次看似完整的结果并不可靠。writings 页面渲染成了转义后的垃圾，部分 tech 链接表现得像下载，tags 的问题也还没有被覆盖到。
 
 这不是 agent 特有的问题。人手工做这种升级，也很容易在几个页面打开以后放松警惕。只是 agent 会把这个问题放大：它可以很快做很多改动，也可以很快给出一个看起来完整的结论。如果目标没有把什么叫“没有坏”写清楚，它就会按照最容易拿到的证据继续往前走。
 
-## 第一次跑出来的结果并不可靠
+## 第二次明确了验证标准
 
 第一次失败之后，我们先 revert。
 
@@ -180,9 +180,9 @@ var tagsJsonPath = tagCloud.data('tags-json') || ['tags', 'json'].join('.');
 
 所谓验证，不是替命令补一个安心的句号，而是把那些隐含的契约逐条显形。
 
-## 重新定义什么叫验证通过
+## 细节：重新定义什么叫验证通过
 
-这次后来真正有用的验证，大致分成三层。
+这次后来真正有用的验证，大致分成三层。这里详细展开说下：
 
 第一层是静态生成结果。build 必须成功，输出路径必须和旧版本一致。这里检查的是公开站点的形状：旧版本有的 `/writings/2013/...html`、`/tech/2013/...html`、`/blogs/2014/...html`，新版本也必须有，不能悄悄变成无扩展名路径，也不能多出一组重复页面。
 
@@ -198,7 +198,7 @@ Codex 并不比人更懂这个旧博客。它真正帮上忙的地方，是可�
 
 ## 最后漏掉的 tags
 
-即使这样，tags 还是最后才被发现。
+即使这样，tags 的问题还是最后才被发现。
 
 原因也很简单：我们验证了 tags 页面能返回 200，也验证了里面出现一些文章内容，但这只覆盖了静态列表。tag cloud 是另一个层次的东西：它要由 JavaScript 请求 JSON，再把 JSON 变成一个可点击的可视化组件。简单的文本内容验证、路径验证、HTML 格式验证，都没有真的让这个组件跑起来。
 
@@ -216,7 +216,7 @@ Codex 并不比人更懂这个旧博客。它真正帮上忙的地方，是可�
 
 但这并不意味着以后写正文还应该继续使用很多框架层面的表达方式。内容本身当然可以复杂，可以有长段落、代码、公式、引用、表格和各种结构；但组织正文的格式最好尽量停留在 Markdown 和纯文本能表达的范围里。如果需要复杂页面，再让 layout、helper 或单独模板去承担复杂性。
 
-这点有一点反讽：本文参考的[《用 Middleman 搭建静态博客》](/tech/2013/03/21/static-blogging-with-middleman.html)正是一篇 Haml 写成的博客。它记录了当年我怎样借助 Haml 获得组织页面的自由；而这次升级则提醒我，这种自由多年以后也会成为迁移时需要重新证明的契约。
+这点有一点讽刺：本文参考的[《用 Middleman 搭建静态博客》](/tech/2013/03/21/static-blogging-with-middleman.html)正是一篇 Haml 写成的博客。它记录了当年我怎样借助 Haml 获得组织页面的自由；而这次升级则提醒我，这种自由多年以后也会成为迁移时需要重新履行的契约。
 
 所以结论不是立刻离开 Middleman，而是继续使用它，同时让正文少背一些框架的债。生成器可以演化，正文最好更容易被未来的生成器接走。
 
@@ -224,7 +224,7 @@ Codex 并不比人更懂这个旧博客。它真正帮上忙的地方，是可�
 
 第一次 prompt：
 
-```
+```md
 Now we need to discuss a plan and in the end you will turn this into a goal
 
 For the current repository, I want you to bump the Ruby, middleman and all Ruby packages and dependencies to a recent but not latest version provided that they are compatible; After the bump there will be errors, fix them, Adjust configuration, github actions; The result should be verified by equivalent build.
@@ -234,7 +234,7 @@ You need to survey the repo, And devise a verifiable task for `/goal`
 
 第一次生成的 `/goal`：
 
-```
+```md
 objective:
 Upgrade /Users/utensil/projects/utensil.github.io from its old Ruby 2.6/2.7 + Middleman 3 dependency set to a recent compatible Ruby/Middleman stack without using latest-edge releases; fix resulting build/config/template/plugin/CI errors; add or update lockfiles and version declarations; update GitHub Actions accordingly; and verify success with an equivalent local Middleman build that produces the static site output from the upgraded bundle.
 
@@ -244,7 +244,7 @@ token_budget:
 
 第二次 prompt：
 
-```
+```md
 now update our goal to verify with the background middleman dev server to ensure the render is correct
 
 how about create a new goal
@@ -270,7 +270,7 @@ go on
 
 第二次生成的 `/goal`：
 
-```
+```md
 objective:
 Redo the Ruby/Middleman upgrade from the pre-version-bump baseline with verification that matches real site behavior, not just HTTP status: first inventory current route behavior and expected generated paths before changing versions; choose a recent compatible Ruby, Middleman, middleman-blog, Haml, and dependency set; update Ruby/tooling/Gemfile/Gemfile.lock/GitHub Actions/config only as needed; fix upgrade regressions without changing public URLs or forcing downloads; verify static build output and a background Middleman dev server against representative routes and sample content, including /, /tech/, /tech/calendar.html, /tech/tags.html, at least three tech article links resolving as text/html with correct content, /writings/, /writings/calendar.html, /writings/tags.html, at least three writings article links resolving as text/html with readable UTF-8 Chinese content rather than garbage, /blogs/, /blogs/calendar.html, /blogs/tags.html, and both English blog article links; compare generated public paths before and after to ensure no unintended extensionless/html path drift; commit only after verification passes; push to origin/middleman after the verified commit.
 ```
